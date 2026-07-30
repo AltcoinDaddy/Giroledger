@@ -1,0 +1,34 @@
+# Anything here is never sent to the Docker daemon. Keeping this tight matters
+# for build speed, but the first two entries matter for a different reason:
+# secrets and runtime state must never end up baked into an image layer.
+.env
+.env.*
+!.env.example
+apps/operator/data/
+apps/keeper/data/
+
+.git/
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+build/
+.turbo/
+*.tsbuildinfo
+
+# Solidity build output. Contracts are deployed from a developer machine, not
+# from a container, so the image has no use for artifacts or caches.
+contracts/artifacts/
+contracts/cache/
+contracts/types/
+contracts/coverage/
+
+# Internal working documents.
+spec.md
+task.md
+instruction.md
+
+.vscode/
+.idea/
+.DS_Store
+*.log
