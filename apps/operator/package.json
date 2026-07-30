@@ -1,0 +1,38 @@
+{
+  "name": "@giroledger/operator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Watches the XRPL address, requests FDC attestation, submits to MasterAccountController.",
+  "scripts": {
+    "dev": "tsx watch --env-file=../../.env src/index.ts",
+    "start": "tsx --env-file=../../.env src/index.ts",
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo \"(no linter configured for operator yet)\"",
+    "spike:resolve": "tsx src/spike/resolveAccount.ts",
+    "spike:limits": "tsx src/spike/mintLimits.ts",
+    "create-rule": "tsx --env-file=../../.env src/spike/createRuleDemo.ts",
+    "finish-rule": "tsx --env-file=../../.env src/spike/finishRule.ts",
+    "inspect-rule": "tsx --env-file=../../.env src/spike/inspectRule.ts",
+    "simulate-execute": "tsx --env-file=../../.env src/spike/simulateExecute.ts",
+    "vaults": "tsx --env-file=../../.env src/spike/vaults.ts",
+    "cancel-rule": "tsx --env-file=../../.env src/spike/cancelRuleDemo.ts",
+    "rules": "tsx --env-file=../../.env src/spike/listRules.ts",
+    "pay": "tsx --env-file=../../.env src/spike/pay.ts",
+    "verify-landing": "tsx --env-file=../../.env src/spike/verifyLanding.ts"
+  },
+  "dependencies": {
+    "@giroledger/shared": "workspace:*",
+    "pino": "catalog:",
+    "viem": "catalog:",
+    "xrpl": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "pino-pretty": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

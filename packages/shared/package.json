@@ -1,0 +1,30 @@
+{
+  "name": "@giroledger/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Types, chain config, ABIs and the instruction codec shared by operator, keeper and web.",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test src/**/*.test.ts",
+    "lint": "echo \"(no linter configured for shared yet)\""
+  },
+  "dependencies": {
+    "viem": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "tsx": "catalog:",
+    "@types/node": "catalog:"
+  }
+}

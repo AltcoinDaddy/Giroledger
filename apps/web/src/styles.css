@@ -1,0 +1,347 @@
+@import "tailwindcss";
+
+/* Self-hosted, not linked from a CDN. Variable fonts, one file each. */
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
+
+/*
+ * GiroLedger design tokens.
+ *
+ * Strategy: CSS variables, not Tailwind `dark:` variants. One definition per
+ * token per mode, so a component cannot be styled for light and forgotten in
+ * dark. Every colour below was checked for WCAG AA against the surface it
+ * sits on.
+ *
+ * MONOCHROME. There is no accent hue. In a black and white system the accent
+ * IS the ink: a primary button is solid black with a white label in light mode,
+ * and inverts in dark. That is why --accent and --text share a value, and why
+ * --accent-text needs no darker variant the way a gold would.
+ *
+ * The ONLY chromatic tokens are --ok and --danger. They are kept because they
+ * encode state a user must not misread: "executed" and "failed" have to be
+ * distinguishable at a glance, and greyscale cannot carry that without relying
+ * on position or reading. Nothing decorative uses them.
+ *
+ * SHAPE LOCK: 8px on everything rectangular (--radius), full round only on
+ * status pills. No mixed radii.
+ */
+
+@theme {
+  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, "SF Mono", monospace;
+}
+
+:root {
+  color-scheme: light;
+
+  --bg: #ffffff;
+  --bg-subtle: #f5f5f5;
+  --surface: #ffffff;
+  --surface-hover: #f0f0f0;
+
+  --border: #e5e5e5;
+  --border-strong: #cccccc;
+
+  --text: #0a0a0a;
+  --text-muted: #5c5c5c;
+  --text-faint: #8f8f8f;
+
+  /* In a monochrome system the accent IS the ink. Black fill, white label. */
+  --accent: #0a0a0a;
+  --accent-hover: #262626;
+  --accent-fg: #ffffff;
+  --accent-text: #0a0a0a;
+  --accent-subtle: #f5f5f5;
+  --accent-border: #dcdcdc;
+
+  --ok: #0f7a4f;
+  --ok-subtle: #eaf6f0;
+  --danger: #b4231f;
+  --danger-subtle: #fdeceb;
+
+  --focus: #0a0a0a;
+  --radius: 8px;
+  --shadow: 0 1px 2px rgb(26 26 25 / 0.05), 0 8px 24px -12px rgb(26 26 25 / 0.12);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Off-black, never #000. Pure black flattens depth. */
+  --bg: #050505;
+  --bg-subtle: #0d0d0d;
+  --surface: #121212;
+  --surface-hover: #1a1a1a;
+
+  --border: #232323;
+  --border-strong: #333333;
+
+  --text: #fafafa;
+  --text-muted: #a3a3a3;
+  --text-faint: #6e6e6e;
+
+  --accent: #fafafa;
+  --accent-hover: #ffffff;
+  --accent-fg: #050505;
+  --accent-text: #fafafa;
+  --accent-subtle: #141414;
+  --accent-border: #2e2e2e;
+
+  --ok: #4ac48a;
+  --ok-subtle: #0f2019;
+  --danger: #f0736c;
+  --danger-subtle: #251313;
+
+  --focus: #fafafa;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -12px rgb(0 0 0 / 0.6);
+}
+
+/* Auto mode: follow the OS unless the user has explicitly chosen light. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --bg: #050505;
+    --bg-subtle: #0d0d0d;
+    --surface: #121212;
+    --surface-hover: #1a1a1a;
+
+    --border: #232323;
+    --border-strong: #333333;
+
+    --text: #fafafa;
+    --text-muted: #a3a3a3;
+    --text-faint: #6e6e6e;
+
+    --accent: #fafafa;
+    --accent-hover: #ffffff;
+    --accent-fg: #050505;
+    --accent-text: #fafafa;
+    --accent-subtle: #141414;
+    --accent-border: #2e2e2e;
+
+    --ok: #4ac48a;
+    --ok-subtle: #0f2019;
+    --danger: #f0736c;
+    --danger-subtle: #251313;
+
+    --focus: #fafafa;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -12px rgb(0 0 0 / 0.6);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tabular figures wherever numbers are compared down a column. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* One focus treatment for the whole app, on the accent. */
+:where(a, button, input, select, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+/*
+ * MOTION_INTENSITY 3. Transitions acknowledge input; nothing animates on its
+ * own. Colour plus transform only, so nothing triggers layout.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .tap {
+    transition:
+      background-color 140ms ease,
+      border-color 140ms ease,
+      color 140ms ease,
+      transform 90ms ease;
+  }
+  .tap:active {
+    transform: translateY(1px);
+  }
+  .fade-in {
+    animation: fade-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------------------------------------------------------- landing --- */
+
+/*
+ * A calmer token set, scoped to the marketing page.
+ *
+ * The app's palette is tuned for VISUAL_DENSITY 5: near-maximum contrast, hard
+ * 1px borders, one small radius. That is right for a form where a mistyped
+ * character costs money, and wrong for a page someone reads. Rather than soften
+ * the whole product and make the tool mushy, `.landing` overrides only what a
+ * reading surface needs and leaves /app untouched.
+ *
+ * What changes: text contrast comes down off the ceiling, borders become
+ * hairlines you sense rather than see, radii grow with the size of the surface,
+ * and shadows do the work borders were doing.
+ */
+.landing {
+  --l-text: #141414;
+  --l-text-muted: #666666;
+  --l-text-faint: #949494;
+  --l-line: #ebebeb;
+  --l-line-strong: #d9d9d9;
+  --l-surface: #ffffff;
+  --l-raised: 0 1px 2px rgb(0 0 0 / 0.04), 0 12px 32px -16px rgb(0 0 0 / 0.1);
+  --l-lifted: 0 2px 4px rgb(0 0 0 / 0.04), 0 32px 64px -32px rgb(0 0 0 / 0.16);
+  --l-radius: 14px;
+  --l-radius-lg: 22px;
+
+  color: var(--l-text);
+}
+
+[data-theme="dark"] .landing {
+  --l-text: #f5f5f5;
+  --l-text-muted: #9e9e9e;
+  --l-text-faint: #6b6b6b;
+  --l-line: #1f1f1f;
+  --l-line-strong: #2e2e2e;
+  --l-surface: #101010;
+  --l-raised: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 32px -16px rgb(0 0 0 / 0.5);
+  --l-lifted: 0 2px 4px rgb(0 0 0 / 0.3), 0 32px 64px -32px rgb(0 0 0 / 0.7);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .landing {
+    --l-text: #f5f5f5;
+    --l-text-muted: #9e9e9e;
+    --l-text-faint: #6b6b6b;
+    --l-line: #1f1f1f;
+    --l-line-strong: #2e2e2e;
+    --l-surface: #101010;
+    --l-raised: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 32px -16px rgb(0 0 0 / 0.5);
+    --l-lifted: 0 2px 4px rgb(0 0 0 / 0.3), 0 32px 64px -32px rgb(0 0 0 / 0.7);
+  }
+}
+
+/*
+ * Display type. Lighter weight and looser leading than the app uses, because
+ * a headline that has to be read is not a label that has to be scanned.
+ */
+.landing h1,
+.landing h2,
+.landing h3 {
+  font-weight: 500;
+  letter-spacing: -0.022em;
+}
+
+.landing p {
+  text-wrap: pretty;
+}
+
+/* ------------------------------------------------------------ hero --- */
+
+/*
+ * The hero follows the page theme. An earlier version forced a dark panel in
+ * both modes, which broke the theme lock for one section; a light-mode visitor
+ * scrolled from black into white and felt they had changed website. The wash
+ * below gives the section presence without inverting it.
+ */
+
+/* A very soft, very desaturated pool of accent behind the headline. Sits under
+   everything, never tinted enough to fight the text above it. */
+.hero-wash {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(58% 42% at 50% 8%, rgb(0 0 0 / 0.1) 0%, transparent 68%),
+    radial-gradient(46% 38% at 12% 34%, rgb(0 0 0 / 0.05) 0%, transparent 70%),
+    radial-gradient(44% 36% at 88% 30%, rgb(0 0 0 / 0.08) 0%, transparent 70%);
+}
+
+[data-theme="dark"] .hero-wash {
+  background:
+    radial-gradient(58% 42% at 50% 8%, rgb(255 255 255 / 0.12) 0%, transparent 68%),
+    radial-gradient(46% 38% at 12% 34%, rgb(255 255 255 / 0.06) 0%, transparent 70%),
+    radial-gradient(44% 36% at 88% 30%, rgb(255 255 255 / 0.09) 0%, transparent 70%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .hero-wash {
+    background:
+      radial-gradient(58% 42% at 50% 8%, rgb(255 255 255 / 0.12) 0%, transparent 68%),
+      radial-gradient(46% 38% at 12% 34%, rgb(255 255 255 / 0.06) 0%, transparent 70%),
+      radial-gradient(44% 36% at 88% 30%, rgb(255 255 255 / 0.09) 0%, transparent 70%);
+  }
+}
+
+/*
+ * The product shot is cropped by the section, the way a screenshot running off
+ * the fold invites you to scroll. The mask softens the cut so it reads as
+ * intentional rather than as a rendering bug.
+ */
+.hero-shot {
+  mask-image: linear-gradient(to bottom, #000 62%, transparent 99%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 99%);
+}
+
+/* Load-in cascade. Sequences the first read, then stops. */
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    animation: rise 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--i, 0) * 90ms);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

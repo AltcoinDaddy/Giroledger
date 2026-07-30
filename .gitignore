@@ -1,0 +1,77 @@
+# ---------------------------------------------------------------
+# Internal working documents (not published to the public repo)
+# ---------------------------------------------------------------
+spec.md
+task.md
+instruction.md
+
+# ---------------------------------------------------------------
+# Secrets. Never commit these.
+# ---------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.json
+wallet.json
+xrpl-seed*
+
+# ---------------------------------------------------------------
+# Foundry / Solidity
+# ---------------------------------------------------------------
+contracts/artifacts/
+contracts/cache/
+contracts/types/
+contracts/coverage/
+# Ignition keeps deployment journals per chain id. Keep those, they are the
+# record of what is deployed where. Ignore only the filled-in parameters.
+contracts/ignition/params.*.json
+!contracts/ignition/params.*.example.json
+
+# ---------------------------------------------------------------
+# Node / TypeScript
+# ---------------------------------------------------------------
+node_modules/
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---------------------------------------------------------------
+# Frontend
+# ---------------------------------------------------------------
+apps/web/dist/
+apps/web/.vite/
+apps/web/.output/
+apps/web/.nitro/
+apps/web/src/routeTree.gen.ts
+
+# ---------------------------------------------------------------
+# Service runtime state
+# ---------------------------------------------------------------
+apps/operator/data/
+apps/keeper/data/
+*.sqlite
+*.db
+logs/
+*.log
+
+# ---------------------------------------------------------------
+# Editors and OS
+# ---------------------------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
+# ---------------------------------------------------------------
+# AI agent local config
+# ---------------------------------------------------------------
+.claude/
+.cursor/
+CLAUDE.local.md

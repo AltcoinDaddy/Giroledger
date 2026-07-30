@@ -1,0 +1,52 @@
+{
+  "name": "giroledger",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Standing orders for XRP. One payment, then it runs itself.",
+  "type": "module",
+  "packageManager": "pnpm@11.17.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter \"./apps/*\" dev",
+    "dev:web": "pnpm --filter @giroledger/web dev",
+    "dev:operator": "pnpm --filter @giroledger/operator dev",
+    "dev:keeper": "pnpm --filter @giroledger/keeper dev",
+    "build": "pnpm --recursive --filter \"./packages/*\" build && pnpm --recursive --filter \"./apps/*\" build",
+    "typecheck": "pnpm --recursive typecheck",
+    "lint": "pnpm --recursive lint",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md,yaml,yml}\" --ignore-path .gitignore",
+    "check": "pnpm typecheck && pnpm lint",
+    "clean": "pnpm --recursive exec rm -rf dist .vite node_modules && rm -rf node_modules",
+    "contracts:build": "pnpm --filter @giroledger/contracts build",
+    "contracts:test": "pnpm --filter @giroledger/contracts test",
+    "contracts:test:fork": "pnpm --filter @giroledger/contracts test:fork",
+    "contracts:deploy": "pnpm --filter @giroledger/contracts deploy",
+    "test": "pnpm --recursive test",
+    "create-rule": "pnpm --filter @giroledger/operator create-rule",
+    "contracts:verify": "pnpm --filter @giroledger/contracts verify",
+    "verify-landing": "pnpm --filter @giroledger/operator verify-landing"
+  },
+  "devDependencies": {
+    "prettier": "^3.8.1",
+    "typescript": "catalog:"
+  },
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "packages/*",
+      "contracts"
+    ],
+    "catalog": {
+      "typescript": "^6.0.2",
+      "@types/node": "^22.10.2",
+      "viem": "^2.21.0",
+      "xrpl": "^4.1.0",
+      "tsx": "^4.19.2",
+      "pino": "^9.5.0",
+      "pino-pretty": "^13.0.0",
+      "zod": "^3.24.1"
+    }
+  }
+}

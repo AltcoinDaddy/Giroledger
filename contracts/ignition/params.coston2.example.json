@@ -1,0 +1,27 @@
+{
+  "_comment": [
+    "Copy to params.coston2.json and fill in. That file is gitignored.",
+    "",
+    "Every value comes from a live read, not from a doc or a guess. Run:",
+    "  pnpm --filter operator spike:resolve <any-xrpl-address>",
+    "and paste what it prints.",
+    "",
+    "  owner  admin for the vault allowlist and the pause valve.",
+    "         Use your deployer address unless you have a reason not to.",
+    "  asset  FXRP. Read from AssetManagerFXRP.fAsset(), never hardcoded",
+    "         from a blog post or an older deployment.",
+    "  vault  An ERC-4626 vault from MasterAccountController.getVaults().",
+    "         Type 1 is Firelight, type 2 is Upshift. On testnet these are",
+    "         plain ERC-4626 mocks, which is fine and should be said plainly",
+    "         in the README rather than implied to be yield-bearing.",
+    "",
+    "Deploy with:",
+    "  npx hardhat ignition deploy ignition/modules/GiroLedger.ts \\",
+    "    --network coston2 --parameters ignition/params.coston2.json"
+  ],
+  "GiroLedgerModule": {
+    "owner": "0x0000000000000000000000000000000000000000",
+    "asset": "0x0000000000000000000000000000000000000000",
+    "vault": "0x0000000000000000000000000000000000000000"
+  }
+}

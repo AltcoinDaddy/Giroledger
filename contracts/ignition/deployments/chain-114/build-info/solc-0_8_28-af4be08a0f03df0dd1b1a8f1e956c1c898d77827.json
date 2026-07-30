@@ -1,0 +1,49 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-af4be08a0f03df0dd1b1a8f1e956c1c898d77827",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "compilerType": "solc",
+  "toolVersions": {
+    "hardhat": "3.11.1"
+  },
+  "userSourceNameMap": {
+    "src/Counter.sol": "project/src/Counter.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode.linkReferences",
+            "evm.bytecode.object",
+            "evm.bytecode.opcodes",
+            "evm.bytecode.sourceMap",
+            "evm.deployedBytecode.immutableReferences",
+            "evm.deployedBytecode.linkReferences",
+            "evm.deployedBytecode.object",
+            "evm.deployedBytecode.opcodes",
+            "evm.deployedBytecode.sourceMap",
+            "evm.methodIdentifiers"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/src/Counter.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.27;\n\n/**\n * @title Counter\n * @notice Throwaway target for spike task S-06.\n *\n * The point of this contract is NOT the counter. It is `lastCaller` and\n * `bumpsBy`.\n *\n * Acceptance criterion A1 is \"an XRPL testnet payment executes an arbitrary\n * call on Coston2 via a Smart Account\". A bare counter cannot prove that: the\n * number goes up whether the caller was the user's PersonalAccount or the\n * operator's own EOA submitting directly. Recording `msg.sender` is what turns\n * this into evidence.\n *\n * After the spike runs, `lastCaller` MUST equal the PersonalAccount address\n * derived from the XRPL address in S-05. If it equals the operator EOA, the\n * spike has not actually proven anything and A1 has not passed.\n *\n * Delete this contract once Phase 1 begins. It is not part of the product.\n */\ncontract Counter {\n    /// @notice Total bumps across all callers.\n    uint256 public count;\n\n    /// @notice The address that most recently called `bump`. This is the evidence.\n    address public lastCaller;\n\n    /// @notice Block timestamp of the most recent bump.\n    uint256 public lastBumpedAt;\n\n    /// @notice Per caller bump count, so one run cannot be confused with another.\n    mapping(address caller => uint256 bumps) public bumpsBy;\n\n    event Bumped(address indexed caller, uint256 indexed newCount, uint256 at);\n\n    error AmountZero();\n    error AmountTooLarge();\n\n    /// @notice Increment by one. Returns the new total.\n    function bump() external returns (uint256) {\n        return _bump(1);\n    }\n\n    /// @notice Increment by `amount`. Lets the spike prove that calldata arguments survive the round trip.\n    function bumpBy(uint256 amount) external returns (uint256) {\n        if (amount == 0) revert AmountZero();\n        if (amount > 1_000) revert AmountTooLarge();\n        return _bump(amount);\n    }\n\n    function _bump(uint256 amount) private returns (uint256) {\n        unchecked {\n            count += amount;\n            bumpsBy[msg.sender] += amount;\n        }\n        lastCaller = msg.sender;\n        lastBumpedAt = block.timestamp;\n\n        emit Bumped(msg.sender, count, block.timestamp);\n        return count;\n    }\n\n    /// @notice Convenience read for the spike script.\n    function state() external view returns (uint256 total, address caller, uint256 at) {\n        return (count, lastCaller, lastBumpedAt);\n    }\n}\n"
+      }
+    }
+  }
+}

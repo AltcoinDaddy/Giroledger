@@ -1,0 +1,26 @@
+{
+  "name": "@giroledger/keeper",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Polls RuleRegistry for due rules and submits executions. Liveness critical, not safety critical.",
+  "scripts": {
+    "dev": "tsx watch --env-file=../../.env src/index.ts",
+    "start": "tsx --env-file=../../.env src/index.ts",
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo \"(no linter configured for keeper yet)\""
+  },
+  "dependencies": {
+    "@giroledger/shared": "workspace:*",
+    "pino": "catalog:",
+    "viem": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "pino-pretty": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}
