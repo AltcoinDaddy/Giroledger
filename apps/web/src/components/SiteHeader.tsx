@@ -12,7 +12,7 @@ import { ThemeToggle } from "./ThemeToggle";
  * every page and on the app screen itself, which is where it matters: nobody
  * should be able to build a payment without knowing it is testnet.
  */
-export function SiteHeader(props: { active?: "home" | "app" | "about" }) {
+export function SiteHeader(props: { active?: "home" | "app" | "about" | "faq" }) {
   return (
     <header
       className="sticky top-0 z-20 border-b backdrop-blur"
@@ -23,8 +23,8 @@ export function SiteHeader(props: { active?: "home" | "app" | "about" }) {
     >
       <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between gap-4 px-5 sm:px-8">
         <div className="flex min-w-0 items-center gap-3">
-          <Link to="/" className="text-[17px] font-semibold tracking-tight whitespace-nowrap">
-            GiroLedger
+          <Link to="/" className="flex items-center">
+            <img src="/logo.png" alt="GiroLedger Logo" className="h-7 sm:h-8 w-auto object-contain" />
           </Link>
         </div>
 
@@ -37,6 +37,15 @@ export function SiteHeader(props: { active?: "home" | "app" | "about" }) {
             }}
           >
             About
+          </Link>
+          <Link
+            to="/faq"
+            className="tap rounded-[var(--radius)] px-2.5 py-1.5 text-[14px]"
+            style={{
+              color: props.active === "faq" ? "var(--text)" : "var(--text-muted)",
+            }}
+          >
+            FAQ
           </Link>
 
           {props.active !== "app" && (

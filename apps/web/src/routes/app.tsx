@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Address, Hex } from "viem";
 import {
@@ -265,10 +265,19 @@ function App() {
   const someUnverified = vaults.some((v) => v.allowed === null);
 
   return (
-    <div style={{ background: "var(--bg)" }} className="min-h-[100dvh]">
+    <div className="landing min-h-[100dvh] relative overflow-hidden" style={{ background: "var(--bg)" }}>
+      <div className="hero-wash" />
+      <div className="absolute inset-0 z-0 opacity-[0.04] dark:opacity-[0.03]" 
+           style={{ 
+             backgroundImage: 'linear-gradient(var(--l-text) 1px, transparent 1px), linear-gradient(90deg, var(--l-text) 1px, transparent 1px)', 
+             backgroundSize: '4rem 4rem',
+             maskImage: 'radial-gradient(ellipse at center, black 40%, transparent 80%)',
+             WebkitMaskImage: 'radial-gradient(ellipse at center, black 40%, transparent 80%)'
+           }} 
+      />
       <SiteHeader active="app" />
 
-      <main className="mx-auto w-full max-w-5xl px-5 pb-24 sm:px-8">
+      <main className="relative z-10 mx-auto w-full max-w-5xl px-5 pb-24 sm:px-8">
         <Intro />
 
         {error && (
@@ -494,7 +503,10 @@ function App() {
                 style={{ color: "var(--text-muted)" }}
               >
                 Send this one payment from your XRP wallet. Both fields are mandatory. The memo
-                is what authorises the rule, so a payment without it is just a payment.
+                is what authorises the rule, so a payment without it is just a payment.{" "}
+                <Link to="/faq" className="font-medium underline hover:opacity-80 transition-opacity" style={{ color: "var(--accent)" }}>
+                  Why does this matter?
+                </Link>
               </p>
 
               <div className="mt-5 flex flex-col gap-5 md:flex-row md:items-start">
@@ -760,8 +772,6 @@ function App() {
             </>
           )}
         </Panel>
-
-        <Footer />
       </main>
     </div>
   );
@@ -769,13 +779,13 @@ function App() {
 
 function Intro() {
   return (
-    <div className="pt-12 pb-2 sm:pt-16">
-      <h1 className="text-3xl leading-[1.1] font-semibold tracking-tight sm:text-4xl">
-        Create a rule
+    <div className="pt-12 pb-6 sm:pt-16 text-center">
+      <h1 className="text-4xl leading-[1.1] tracking-tight sm:text-5xl font-medium">
+        <span className="text-gradient font-semibold">Create a rule</span>
       </h1>
       <p
-        className="mt-3 max-w-[56ch] text-base leading-relaxed"
-        style={{ color: "var(--text-muted)" }}
+        className="mx-auto mt-4 max-w-[56ch] text-[1.0625rem] leading-relaxed"
+        style={{ color: "var(--l-text-muted)" }}
       >
         Three steps. The last one is a single XRP payment, which you send from your own
         wallet. Nothing here ever asks you to connect one.
@@ -784,35 +794,7 @@ function Intro() {
   );
 }
 
-function Footer() {
-  return (
-    <footer
-      className="mt-16 border-t pt-6 text-[12px] leading-relaxed"
-      style={{ borderColor: "var(--border)", color: "var(--text-faint)" }}
-    >
-      <p>Testnet only. Not audited. No real value.</p>
-      <p className="mt-1.5 max-w-[80ch]">
-        The keeper that executes rules is liveness critical, not safety critical. It cannot
-        steal, redirect or overspend: the on-chain allowance and the rule parameters bound it,
-        and vault shares always mint to your own account.
-      </p>
-      {/*
-        This paragraph used to claim GiroLedger ran no operator of its own and
-        that Flare's public wallets picked payments up automatically. Tested on
-        28 July: they do not. A payment nobody follows up on sits at the Core
-        Vault untouched. Corrected rather than quietly deleted, because the
-        distinction between what an operator can and cannot do is the point.
-      */}
-      <p className="mt-1.5 max-w-[80ch]">
-        After your payment, an operator requests the Flare Data Connector attestation and
-        submits it. That step is required, and GiroLedger runs it. Like the keeper, the
-        operator is liveness critical only: it cannot forge an instruction, because
-        authorisation comes from your XRPL signature and the attestation proves the payment
-        independently. If it stops, rules stop being created, and nothing else happens.
-      </p>
-    </footer>
-  );
-}
+
 
 /* -------------------------------------------------------------- parts --- */
 
@@ -824,15 +806,15 @@ function Footer() {
  */
 function Step(props: { n: string; title: string; children: React.ReactNode }) {
   return (
-    <section className="border-t pt-8 pb-2 first-of-type:border-t-0" style={{ borderColor: "var(--border)" }}>
-      <div className="mb-5 flex items-baseline gap-3">
+    <section className="mt-8 rounded-3xl glass-card p-6 sm:p-8 shadow-lg border" style={{ borderColor: "var(--l-line)" }}>
+      <div className="mb-5 flex items-center gap-3">
         <span
-          className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] font-semibold tnum"
-          style={{ background: "var(--accent-subtle)", color: "var(--accent-text)" }}
+          className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[12px] font-bold tnum shadow-sm"
+          style={{ background: "var(--accent)", color: "var(--accent-fg)" }}
         >
           {props.n}
         </span>
-        <h2 className="text-lg font-semibold tracking-tight">{props.title}</h2>
+        <h2 className="text-xl font-semibold tracking-tight" style={{ color: "var(--l-text)" }}>{props.title}</h2>
       </div>
       {props.children}
     </section>
@@ -841,11 +823,11 @@ function Step(props: { n: string; title: string; children: React.ReactNode }) {
 
 function Panel(props: { title: string; hint?: string; children: React.ReactNode }) {
   return (
-    <section className="mt-10 border-t pt-8" style={{ borderColor: "var(--border)" }}>
-      <div className="mb-4 flex items-baseline justify-between gap-3">
-        <h2 className="text-lg font-semibold tracking-tight">{props.title}</h2>
+    <section className="mt-10 rounded-3xl glass-card p-6 sm:p-8 shadow-lg border" style={{ borderColor: "var(--l-line)" }}>
+      <div className="mb-5 flex items-baseline justify-between gap-3">
+        <h2 className="text-xl font-semibold tracking-tight" style={{ color: "var(--l-text)" }}>{props.title}</h2>
         {props.hint !== undefined && (
-          <span className="font-mono text-[11px]" style={{ color: "var(--text-faint)" }}>
+          <span className="font-mono text-[11px]" style={{ color: "var(--l-text-muted)" }}>
             {props.hint}
           </span>
         )}
@@ -974,8 +956,8 @@ function Callout(props: {
 function Empty(props: { children: React.ReactNode }) {
   return (
     <div
-      className="rounded-[var(--radius)] border border-dashed px-4 py-8 text-center text-[13px] leading-relaxed"
-      style={{ borderColor: "var(--border-strong)", color: "var(--text-faint)" }}
+      className="rounded-[var(--radius)] border border-dashed px-4 py-10 text-center text-[14px] leading-relaxed"
+      style={{ borderColor: "var(--l-line-strong)", color: "var(--l-text-muted)", background: "color-mix(in srgb, var(--surface) 40%, transparent)" }}
     >
       <p className="mx-auto max-w-[56ch]">{props.children}</p>
     </div>

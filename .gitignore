@@ -4,6 +4,10 @@
 spec.md
 task.md
 instruction.md
+demo.md
+demo-script.md
+faq.md
+pitch.md
 
 # ---------------------------------------------------------------
 # Secrets. Never commit these.

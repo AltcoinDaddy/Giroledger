@@ -40,17 +40,26 @@ const LESSONS = [
 
 function About() {
   return (
-    <div className="min-h-[100dvh]" style={{ background: "var(--bg)" }}>
+    <div className="landing min-h-[100dvh] relative overflow-hidden" style={{ background: "var(--bg)" }}>
+      <div className="hero-wash" />
+      <div className="absolute inset-0 z-0 opacity-[0.04] dark:opacity-[0.03]" 
+           style={{ 
+             backgroundImage: 'linear-gradient(var(--l-text) 1px, transparent 1px), linear-gradient(90deg, var(--l-text) 1px, transparent 1px)', 
+             backgroundSize: '4rem 4rem',
+             maskImage: 'radial-gradient(ellipse at center, black 40%, transparent 80%)',
+             WebkitMaskImage: 'radial-gradient(ellipse at center, black 40%, transparent 80%)'
+           }} 
+      />
       <SiteHeader active="about" />
 
-      <main className="mx-auto w-full max-w-3xl px-5 pt-16 pb-24 sm:px-8 sm:pt-24">
+      <main className="relative z-10 mx-auto w-full max-w-4xl px-5 pt-16 pb-24 sm:px-8 sm:pt-24">
         <Reveal>
-          <h1 className="max-w-[20ch] text-4xl leading-[1.08] font-semibold tracking-tight sm:text-5xl">
-            What this is, and what it is not.
+          <h1 className="text-4xl leading-[1.08] font-medium tracking-tight sm:text-5xl text-center">
+            <span className="text-gradient font-semibold">What this is,</span> and what it is not.
           </h1>
           <p
-            className="mt-5 text-lg leading-relaxed"
-            style={{ color: "var(--text-muted)" }}
+            className="mt-6 text-lg leading-relaxed text-center mx-auto max-w-2xl"
+            style={{ color: "var(--l-text-muted)" }}
           >
             GiroLedger is a prototype built for Flare Summer Signal. It turns a single XRP
             Ledger payment into a recurring on-chain rule, and it runs on Coston2 with real
@@ -168,14 +177,15 @@ function About() {
         </Block>
 
         <Reveal>
-          <div
-            className="mt-14 flex flex-wrap items-center gap-x-6 gap-y-3 border-t pt-8"
-            style={{ borderColor: "var(--border)" }}
-          >
+          <div className="mt-16 flex flex-wrap items-center justify-center gap-x-5 gap-y-3 pt-8">
             <Link
               to="/app"
-              className="tap inline-flex items-center gap-2 rounded-full px-6 py-3 text-[15px] font-semibold"
-              style={{ background: "var(--accent)", color: "var(--accent-fg)" }}
+              className="tap inline-flex items-center justify-center gap-2 rounded-full px-8 py-3.5 text-[15px] font-medium transition-transform hover:scale-[1.02]"
+              style={{
+                background: "var(--accent)",
+                color: "var(--accent-fg)",
+                boxShadow: "0 8px 24px -6px var(--accent)",
+              }}
             >
               Create a rule
               <ArrowRight size={16} weight="bold" />
@@ -184,11 +194,15 @@ function About() {
               href={tx("0x1c5d1a15c287a40c5cbd7923a592d1e7124c734027f19ba6293b89d0eee9d3c0")}
               target="_blank"
               rel="noreferrer"
-              className="tap inline-flex items-center gap-2 text-[15px] font-medium"
-              style={{ color: "var(--text)" }}
+              className="tap inline-flex items-center justify-center gap-2 rounded-full px-8 py-3.5 text-[15px] font-medium border transition-colors hover:bg-[var(--surface-hover)]"
+              style={{ 
+                borderColor: "var(--l-line-strong)",
+                color: "var(--l-text)",
+                background: "var(--bg)"
+              }}
             >
               See one execute
-              <ArrowSquareOut size={15} />
+              <ArrowSquareOut size={15} weight="bold" />
             </a>
           </div>
         </Reveal>
@@ -199,10 +213,10 @@ function About() {
 
 function Block(props: { title: string; children: React.ReactNode }) {
   return (
-    <Reveal>
-      <section className="mt-14">
-        <h2 className="text-2xl font-semibold tracking-tight">{props.title}</h2>
-        <div className="mt-4">{props.children}</div>
+    <Reveal y={20}>
+      <section className="mt-12 rounded-3xl glass-card p-7 sm:p-10 shadow-lg border" style={{ borderColor: "var(--l-line)" }}>
+        <h2 className="text-[1.75rem] font-semibold tracking-tight" style={{ color: "var(--l-text)" }}>{props.title}</h2>
+        <div className="mt-5">{props.children}</div>
       </section>
     </Reveal>
   );
@@ -211,8 +225,8 @@ function Block(props: { title: string; children: React.ReactNode }) {
 function P(props: { children: React.ReactNode }) {
   return (
     <p
-      className="mt-4 max-w-[68ch] text-[15.5px] leading-relaxed first:mt-0"
-      style={{ color: "var(--text-muted)" }}
+      className="mt-4 max-w-[68ch] text-[16px] leading-relaxed first:mt-0"
+      style={{ color: "var(--l-text-muted)" }}
     >
       {props.children}
     </p>

@@ -14,7 +14,7 @@
 
 **Built for [Flare Summer Signal](https://dorahacks.io/hackathon/flaresummersignal/detail)** · Track: interoperable asset products
 
-[Demo video](#demo) · [How it works](#how-it-works) · [Why this needs Flare](#why-this-requires-flare) · [Quickstart](#quickstart) · [Limitations](#security-and-limitations)
+[Demo video](#demo) · [Using it](#using-it) · [How it works](#how-it-works) · [Why this needs Flare](#why-this-requires-flare) · [Quickstart](#quickstart) · [Limitations](#security-and-limitations)
 
 </div>
 
@@ -25,6 +25,8 @@
 An XRP holder sends **one** payment from their ordinary XRP wallet. That payment creates a persistent rule on Flare which then executes on its own, over and over, until they cancel it with a second payment.
 
 No FLR. No EVM wallet. No seed phrase on a second chain. No bridge UI.
+
+It is a standing order. You tell your bank once to move £50 into savings on the first of every month, and then you forget about it. Same idea, except the bank is a blockchain, nobody can freeze it, and nobody can change the terms behind your back.
 
 ## Status, honestly
 
@@ -83,6 +85,35 @@ GiroLedger makes the single payment **persistent**.
 | Cancel | Revoke approvals from the EVM wallet | One more XRPL payment |
 
 One XRPL payment carries an instruction that does two things atomically: it grants a **capped** allowance to the executor contract, and it registers the rule. A permissionless keeper then executes that rule whenever it is due. Vault shares are always minted back to the user's own account.
+
+---
+
+## Using it
+
+Three steps on the site, then one payment from the wallet you already have. No install, no extension, no account to create.
+
+**1. Paste your XRP address.**
+The page works out which account on Flare belongs to it and shows you the address and the balance. This is the part people find surprising: that account already exists and is already yours. You have simply never used it.
+
+**2. Describe the standing order.**
+Four choices. How much per run, how many runs, how often, and which vault the money goes into. Frequency runs from `2 min` (there for demos, so three executions fit inside one video) through hourly, daily and weekly.
+
+**3. Send one payment.**
+The page hands you three things to copy: a destination address, an exact amount, and a memo. Paste them into whatever XRP wallet you already use, anything that lets you attach a memo, and send. There is a QR code for phones.
+
+> **Copy the amount and the memo exactly.** The memo *is* the instruction. A payment with the wrong memo, or none, is not a GiroLedger instruction and will sit unclaimed until someone resolves it by hand.
+
+**Then wait two to three minutes.** The payment has to be proven to Flare before anything can act on it, and that proof arrives in rounds ([measured 60 to 140 seconds](#demo) across live runs). The rule then shows as active and runs by itself from that point on. Vault shares are minted to your own account every time, never to ours.
+
+**To stop it,** press stop next to the rule. You get one more payment to send, `0.2 XRP`, which is fees only because a cancellation buys nothing. Same wait, then the rule is dead. Details in [Stopping a rule](#stopping-a-rule).
+
+### What the services can and cannot do
+
+Two background services keep this running, and it is worth being precise about their power, because "some server does it for you" is exactly the thing people are right to distrust.
+
+The memo is 42 bytes. That is far too small to hold the instruction itself, so it holds a **fingerprint** of the instruction instead: `keccak256` of the operation you signed for. The operator supplies the full operation body; the chain hashes it and compares. Substitute anything at all and the hashes disagree and the transaction reverts.
+
+So an operator that is offline, slow, or actively hostile can **delay** you. It cannot change your instruction, redirect your shares, or spend a satoshi more than the cap you approved. The same holds for the keeper, which only triggers rules that are already due and holds no funds and no permission you do not also have.
 
 ---
 
