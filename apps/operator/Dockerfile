@@ -41,9 +41,12 @@ COPY apps/operator/package.json      apps/operator/
 COPY apps/keeper/package.json        apps/keeper/
 COPY packages/shared/package.json    packages/shared/
 COPY contracts/package.json          contracts/
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm config set store-dir /pnpm/store && \
-    pnpm install --frozen-lockfile
+# No `--mount=type=cache` here on purpose. It needs BuildKit, and hosted
+# builders often still run the legacy builder, where that flag is a hard error
+# rather than a warning. A cache mount only makes rebuilds faster; failing to
+# build at all is worse than building slowly. The root Dockerfile, which only
+# ever runs locally under BuildKit, keeps the cache.
+RUN pnpm install --frozen-lockfile
 
 # ------------------------------------------------------------- runtime ------
 # The service runs its TypeScript directly through tsx. Its `build` script is

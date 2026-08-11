@@ -33,6 +33,27 @@ repository as-is.
 
 ---
 
+## Legacy builder
+
+The three app Dockerfiles avoid `RUN --mount=type=cache`, which requires
+BuildKit. Plenty of hosted builders still run the legacy builder, where that
+flag is a hard error rather than a warning, so the whole build dies on the
+install step.
+
+Your laptop enables BuildKit by default, which means a local build can pass
+while the identical Dockerfile fails on your host. Test the way your platform
+builds, not the way your laptop does:
+
+```bash
+DOCKER_BUILDKIT=0 docker build -f apps/operator/Dockerfile -t test-op .
+```
+
+The root `Dockerfile` still uses a cache mount. It only ever runs locally
+through `docker compose`, where BuildKit is available and the faster rebuild is
+worth having.
+
+---
+
 ## Deploy in this order
 
 The order matters because of one build-time dependency.
