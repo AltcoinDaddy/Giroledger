@@ -64,11 +64,8 @@ VOLUME ["/app/apps/keeper/data"]
 ENV HEALTH_PORT=8081
 EXPOSE 8081
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD wget -qO- "http://127.0.0.1:${HEALTH_PORT:-8081}/health" >/dev/null || exit 1
-
 WORKDIR /app/apps/keeper
 
 # The package's own `start` script passes --env-file=../../.env, which does not
 # exist in an image and must not: secrets arrive from the host at run time.
-CMD ["sh", "-c", "export HEALTH_PORT=\"${PORT:-${HEALTH_PORT:-8081}}\"; exec pnpm exec tsx src/index.ts"]
+CMD ["sh", "-c", "exec pnpm exec tsx src/index.ts"]
