@@ -71,9 +71,6 @@ VOLUME ["/app/apps/operator/data"]
 ENV OPERATOR_HTTP_PORT=8080
 EXPOSE 8080
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD wget -qO- "http://127.0.0.1:${OPERATOR_HTTP_PORT:-8080}/health" >/dev/null || exit 1
-
 WORKDIR /app/apps/operator
 
 # The package's own `start` script passes --env-file=../../.env, which does not
@@ -82,4 +79,4 @@ WORKDIR /app/apps/operator
 #
 # Hosts that inject PORT win over the default, since that is usually the only
 # port they will route traffic to.
-CMD ["sh", "-c", "export OPERATOR_HTTP_PORT=\"${PORT:-${OPERATOR_HTTP_PORT:-8080}}\"; exec pnpm exec tsx src/index.ts"]
+CMD ["sh", "-c", "exec pnpm exec tsx src/index.ts"]
