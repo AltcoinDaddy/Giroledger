@@ -108,12 +108,18 @@ function Hero() {
                   </div>
                   <span className="text-xs px-2.5 py-1 rounded-full bg-green-100/80 text-green-700 font-medium dark:bg-green-900/40 dark:text-green-400">Active</span>
                </div>
+               {/*
+                 These three cards used to show invented dollar balances. On a
+                 page whose next section is "every claim here is a transaction
+                 you can open", made-up figures are the one thing that can cost
+                 you a reader's trust for free. They now show the mechanism, and
+                 every number is true and repeated elsewhere on the page.
+               */}
                <div className="mb-2">
-                 <span className="text-[2.25rem] font-light tracking-tight text-[var(--l-text)]">$32,831</span><span className="text-xl text-[var(--l-text-faint)]">.69</span>
+                 <span className="text-[2.25rem] font-light tracking-tight text-[var(--l-text)]">1 FXRP</span><span className="text-xl text-[var(--l-text-faint)]"> / week</span>
                </div>
                <div className="flex items-center justify-between">
-                 <p className="text-[13px]" style={{ color: "var(--l-text-muted)" }}>Limit is <strong className="font-semibold text-[var(--l-text)]">$30k</strong> a month.</p>
-                 <div className="w-6 h-6 rounded-full bg-[var(--l-text)] text-[var(--bg)] flex items-center justify-center font-bold text-lg leading-none pb-[2px] cursor-pointer hover:scale-110 transition-transform">+</div>
+                 <p className="text-[13px]" style={{ color: "var(--l-text-muted)" }}>Capped at <strong className="font-semibold text-[var(--l-text)]">10 runs</strong>. Enforced on-chain.</p>
                </div>
             </div>
           </Reveal>
@@ -133,11 +139,11 @@ function Hero() {
                   </div>
                </div>
                <div className="mb-2">
-                 <span className="text-2xl font-light text-[var(--l-text)]">$29,352</span><span className="text-sm font-medium text-red-500">.74</span>
+                 <span className="text-2xl font-light text-[var(--l-text)]">10.2</span><span className="text-sm font-medium text-[var(--l-text-faint)]"> XRP</span>
                </div>
                <div className="flex justify-between items-center">
-                 <p className="text-xs" style={{ color: "var(--l-text-muted)" }}>Limit is <strong className="text-[var(--l-text)]">$30k</strong> a month.</p>
-                 <span className="text-[10px] px-2 py-0.5 rounded-full border border-red-200 text-red-600 font-medium dark:border-red-900 dark:text-red-400">Active</span>
+                 <p className="text-xs" style={{ color: "var(--l-text-muted)" }}>One payment <strong className="text-[var(--l-text)]">starts</strong> it.</p>
+                 <span className="text-[10px] px-2 py-0.5 rounded-full border font-medium" style={{ borderColor: "var(--border-strong)", color: "var(--l-text-muted)" }}>Create</span>
                </div>
             </div>
           </Reveal>
@@ -157,11 +163,11 @@ function Hero() {
                   </div>
                </div>
                <div className="mb-2">
-                 <span className="text-2xl font-light text-[var(--l-text)]">$19,251</span><span className="text-sm font-medium text-blue-500">.67</span>
+                 <span className="text-2xl font-light text-[var(--l-text)]">0.2</span><span className="text-sm font-medium text-[var(--l-text-faint)]"> XRP</span>
                </div>
                <div className="flex justify-between items-center">
-                 <p className="text-xs" style={{ color: "var(--l-text-muted)" }}>Limit is <strong className="text-[var(--l-text)]">$30k</strong> a month.</p>
-                 <span className="text-[10px] px-2 py-0.5 rounded-full border border-blue-200 text-blue-600 font-medium dark:border-blue-900 dark:text-blue-400">Active</span>
+                 <p className="text-xs" style={{ color: "var(--l-text-muted)" }}>One payment <strong className="text-[var(--l-text)]">stops</strong> it.</p>
+                 <span className="text-[10px] px-2 py-0.5 rounded-full border font-medium" style={{ borderColor: "var(--border-strong)", color: "var(--l-text-muted)" }}>Cancel</span>
                </div>
             </div>
           </Reveal>
