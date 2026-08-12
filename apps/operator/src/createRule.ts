@@ -243,7 +243,21 @@ export async function createRule(
     say,
   });
 
-  say("submitting executeDirectMintingWithData");
+  // Double the estimate. MasterAccountController catches each sub-call's
+  // failure, so the estimator cannot see an inner call running out of gas, and
+  // EIP-150 skims a sixty-fourth at every one of the four nesting levels. See
+  // the long note in index.ts. Unused gas is refunded, so this costs nothing.
+  const estimated = await ctx.publicClient.estimateContractGas({
+    address: assetManager,
+    abi: assetManagerFxrpAbi,
+    functionName: "executeDirectMintingWithData",
+    args: [proof as never, instruction.data],
+    value: instruction.totalCallValue,
+    account: ctx.walletClient.account!,
+  });
+  const gas = estimated * 2n > 1_500_000n ? estimated * 2n : 1_500_000n;
+
+  say(`submitting executeDirectMintingWithData (gas ${gas}, estimate ${estimated})`);
   const flareTransactionHash = await ctx.walletClient.writeContract({
     address: assetManager,
     abi: assetManagerFxrpAbi,
@@ -252,6 +266,7 @@ export async function createRule(
     value: instruction.totalCallValue,
     chain: coston2,
     account: ctx.walletClient.account!,
+    gas,
   });
 
   const receipt = await ctx.publicClient.waitForTransactionReceipt({

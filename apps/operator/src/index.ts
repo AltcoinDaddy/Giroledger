@@ -276,6 +276,38 @@ async function complete(args: {
     say: (m) => log.info(m),
   });
 
+  /*
+   * Do NOT let viem use the raw estimate. This is the same trap that cost
+   * sixty keeper batches, in a different contract.
+   *
+   * MasterAccountController runs each call in the user operation as a
+   * sub-call and catches its failure, so `eth_estimateGas` reports the outer
+   * call succeeding even when an inner one runs out of gas. Worse, EIP-150
+   * hands a sub-call only 63/64 of what remains, and this path nests four
+   * deep: AssetManager, MasterAccountController, PersonalAccount, then the
+   * target. Each hop skims a sixty-fourth. An estimate that is exactly right
+   * for the whole transaction is therefore never enough for the innermost
+   * call, which reverts with EMPTY return data and surfaces as
+   * `CallFailed(1, "")` with no clue as to why.
+   *
+   * Observed live on 12 August: estimate 723,413, used 693,871, inner
+   * `createRule` starved and reverted empty.
+   *
+   * Doubling costs nothing. Unused gas is refunded; only the balance needs to
+   * cover the limit. The floor covers the case where estimation itself
+   * under-reports badly.
+   */
+  const estimated = await ctx.publicClient.estimateContractGas({
+    address: assetManager,
+    abi: assetManagerFxrpAbi,
+    functionName: "executeDirectMintingWithData",
+    args: [proof as never, pending.data],
+    value: BigInt(pending.totalCallValue),
+    account,
+  });
+  const gas = estimated * 2n > 1_500_000n ? estimated * 2n : 1_500_000n;
+  log.info({ estimated: estimated.toString(), gas: gas.toString() }, "gas for direct minting");
+
   const hash = await ctx.walletClient.writeContract({
     address: assetManager,
     abi: assetManagerFxrpAbi,
@@ -284,6 +316,7 @@ async function complete(args: {
     value: BigInt(pending.totalCallValue),
     chain: coston2,
     account,
+    gas,
   });
 
   const receipt = await ctx.publicClient.waitForTransactionReceipt({ hash });

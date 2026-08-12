@@ -183,7 +183,20 @@ export async function cancelRule(
     say,
   });
 
-  say("submitting executeDirectMintingWithData");
+  // Double the estimate, for the same reason as the create path: the estimator
+  // cannot see an inner call starve, and four levels of EIP-150 each retain a
+  // sixty-fourth. See the note in index.ts.
+  const estimated = await ctx.publicClient.estimateContractGas({
+    address: assetManager,
+    abi: assetManagerFxrpAbi,
+    functionName: "executeDirectMintingWithData",
+    args: [proof as never, instruction.data],
+    value: instruction.totalCallValue,
+    account: ctx.walletClient.account!,
+  });
+  const gas = estimated * 2n > 1_500_000n ? estimated * 2n : 1_500_000n;
+
+  say(`submitting executeDirectMintingWithData (gas ${gas}, estimate ${estimated})`);
   const flareTransactionHash = await ctx.walletClient.writeContract({
     address: assetManager,
     abi: assetManagerFxrpAbi,
@@ -192,6 +205,7 @@ export async function cancelRule(
     value: instruction.totalCallValue,
     chain: coston2,
     account: ctx.walletClient.account!,
+    gas,
   });
 
   const receipt = await ctx.publicClient.waitForTransactionReceipt({

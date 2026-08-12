@@ -162,7 +162,21 @@ async function main(): Promise<void> {
       say,
     });
 
-    say("submitting executeDirectMintingWithData");
+    // Double the estimate. MasterAccountController catches each sub-call's
+    // failure, so the estimator cannot see an inner call run out of gas, and
+    // EIP-150 retains a sixty-fourth at each of the four nesting levels. See
+    // the note in index.ts. Unused gas is refunded.
+    const estimated = await publicClient.estimateContractGas({
+      address: assetManager,
+      abi: assetManagerFxrpAbi,
+      functionName: "executeDirectMintingWithData",
+      args: [proof as never, instruction.data],
+      value: instruction.totalCallValue,
+      account,
+    });
+    const gas = estimated * 2n > 1_500_000n ? estimated * 2n : 1_500_000n;
+
+    say(`submitting executeDirectMintingWithData (gas ${gas}, estimate ${estimated})`);
     const hash = await walletClient.writeContract({
       address: assetManager,
       abi: assetManagerFxrpAbi,
@@ -171,6 +185,7 @@ async function main(): Promise<void> {
       value: instruction.totalCallValue,
       chain: coston2,
       account,
+      gas,
     });
 
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
