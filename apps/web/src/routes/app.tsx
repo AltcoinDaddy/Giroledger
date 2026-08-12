@@ -38,6 +38,7 @@ import {
 } from "../lib/flare";
 import { Qr } from "../components/Qr";
 import { Copyable } from "../components/Copyable";
+import { SendWithGemWallet } from "../components/SendWithGemWallet";
 import { SiteHeader } from "../components/SiteHeader";
 import {
   duration,
@@ -605,6 +606,14 @@ function App() {
                 </Callout>
               )}
 
+              <SendWithGemWallet
+                destination={createQuote.destination}
+                amountDrops={createQuote.amountUBA.toString()}
+                memoHex={toXrplHex(instruction.memoData)}
+                disabled={registered === false}
+              />
+
+
               <Callout tone="accent" icon={<Warning size={15} weight="fill" />}>
                 Send only one of these at a time. The memo is bound to nonce{" "}
                 <Num>{resolved.nonce.toString()}</Num>; a second payment built from the same
@@ -717,6 +726,13 @@ function App() {
                   />
                 </div>
               </div>
+
+              <SendWithGemWallet
+                destination={cancelQuote.destination}
+                amountDrops={cancelQuote.amountUBA.toString()}
+                memoHex={toXrplHex(cancelInstruction.memoData)}
+                note="Opens the extension with everything filled in. Fees only, because a cancellation mints nothing."
+              />
             </div>
           )}
         </Panel>
