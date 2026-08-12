@@ -70,6 +70,67 @@ async function main(): Promise<void> {
     failed: 0,
     lastError: null,
   };
+  /*
+   * Everything below that needs the network is assembled after the HTTP server
+   * is already listening, and this holder is what lets that happen. It is null
+   * until startup finishes.
+   *
+   * WHY THE SERVER GOES FIRST. Two contract reads and an XRPL WebSocket
+   * connection stand between process start and a listening socket. A host that
+   * probes for an open port within twenty seconds sees nothing, decides the
+   * container is dead and kills it, and the logs show a perfectly healthy
+   * process being executed for a crime it did not commit. Binding the port
+   * first turns a deployment failure into a few seconds of `watching: null`.
+   */
+  let wiring: { ctx: CreateRuleContext; xrpl: Client; assetManager: Address } | null = null;
+
+  /**
+   * Complete a payment that arrived before its instruction did.
+   *
+   * Called from two places: the moment an instruction is registered, and once
+   * more for every pending instruction after startup finishes. The second pass
+   * matters because an instruction accepted during those first few seconds
+   * would otherwise sit with its payment waiting beside it and nothing to
+   * bring the two together.
+   */
+  const completeHeld = (pending: PendingInstruction): void => {
+    if (!wiring) {
+      logger.info(
+        { userOpHash: pending.userOpHash },
+        "instruction accepted before startup finished, will reconcile in a moment",
+      );
+      return;
+    }
+    const orphan = store.takeOrphan(pending.userOpHash);
+    if (!orphan) return;
+    const log = logger.child({ xrplTx: orphan.xrplTx });
+    log.info("this instruction matches a payment already waiting, completing now");
+    health.seen += 1;
+    void complete({
+      pending,
+      xrplTx: orphan.xrplTx,
+      ctx: wiring.ctx,
+      log,
+      xrpl: wiring.xrpl,
+      assetManager: wiring.assetManager,
+      account,
+      health,
+      store,
+    }).catch((e: unknown) => {
+      health.failed += 1;
+      health.lastError = e instanceof Error ? e.message : String(e);
+      log.error({ err: health.lastError }, "failed to complete held payment");
+    });
+  };
+
+  startServer({
+    port: config.OPERATOR_HTTP_PORT,
+    store,
+    health,
+    log: logger,
+    onRegistered: completeHeld,
+  });
+
   const assetManager = await contractByName(publicClient, "AssetManagerFXRP");
   const coreVault = (await publicClient.readContract({
     address: assetManager,
@@ -102,43 +163,20 @@ async function main(): Promise<void> {
 
   const xrpl = new Client(config.XRPL_WSS_URL);
   await xrpl.connect();
-
-  /*
-   * Registering an instruction can complete a payment that already arrived.
-   * Without this, the ordering "pay, then register" strands the XRP even though
-   * the operator has everything it needs moments later.
-   */
-  startServer({
-    port: config.OPERATOR_HTTP_PORT,
-    store,
-    health,
-    log: logger,
-    onRegistered: (pending) => {
-      const orphan = store.takeOrphan(pending.userOpHash);
-      if (!orphan) return;
-      const log = logger.child({ xrplTx: orphan.xrplTx });
-      log.info("this instruction matches a payment already waiting, completing now");
-      health.seen += 1;
-      void complete({
-        pending,
-        xrplTx: orphan.xrplTx,
-        ctx,
-        log,
-        xrpl,
-        assetManager,
-        account,
-        health,
-        store,
-      }).catch((e: unknown) => {
-        health.failed += 1;
-        health.lastError = e instanceof Error ? e.message : String(e);
-        log.error({ err: health.lastError }, "failed to complete held payment");
-      });
-    },
-  });
   await xrpl.request({ command: "subscribe", accounts: [coreVault] });
   health.watching = coreVault;
   logger.info({ coreVault }, "watching the direct-minting payment address");
+
+  /*
+   * Startup is finished, so the server's callback can do real work now.
+   *
+   * The sweep afterwards catches two cases. An instruction registered during
+   * those first few seconds, before `wiring` existed. And a payment recorded as
+   * an orphan before a restart, whose instruction survived in the store. Both
+   * would otherwise sit forever with everything needed to complete them.
+   */
+  wiring = { ctx, xrpl, assetManager };
+  for (const pending of store.pending()) completeHeld(pending);
 
   xrpl.on("transaction", (stream: TransactionStream) => {
     void (async () => {

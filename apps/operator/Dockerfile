@@ -68,15 +68,24 @@ COPY apps/operator ./apps/operator
 ENV STATE_DIR=/app/apps/operator/data
 VOLUME ["/app/apps/operator/data"]
 
-ENV OPERATOR_HTTP_PORT=8080
 EXPOSE 8080
 
 WORKDIR /app/apps/operator
 
-# The package's own `start` script passes --env-file=../../.env, which does not
-# exist in an image and must not: secrets arrive from the host at run time.
-# So tsx is invoked directly and configuration comes from the environment.
+# Start tsx DIRECTLY, not through pnpm. Two reasons, both of which cost a
+# failed deployment before they were found:
 #
-# Hosts that inject PORT win over the default, since that is usually the only
-# port they will route traffic to.
-CMD ["sh", "-c", "exec pnpm exec tsx src/index.ts"]
+#   1. `pnpm` in the runtime stage makes corepack fetch the pnpm tarball from
+#      npm on every container start. That needs network before the app can
+#      even begin, and it blows past a 20-second startup health probe.
+#   2. pnpm 11 verifies the lockfile before running a command, which resolves
+#      the whole workspace at boot. Same delay, same result.
+#
+# The package's own `start` script is no good here either: it passes
+# --env-file=../../.env, which does not exist in an image and must not.
+# Configuration arrives from the host environment instead.
+#
+# Port: an explicitly set OPERATOR_HTTP_PORT wins, then whatever the host
+# injects as PORT, then the default. Hosts disagree about which they set, and
+# binding the wrong one looks exactly like a crashed app.
+CMD ["sh", "-c", "exec ./node_modules/.bin/tsx src/index.ts"]

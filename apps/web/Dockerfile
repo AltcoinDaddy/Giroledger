@@ -75,12 +75,15 @@ ENV NODE_ENV=production
 COPY --from=build /app /app
 WORKDIR /app/apps/web
 
-# Most hosts inject PORT and expect the process to bind it. Falling back to
-# 3000 keeps `docker run` working locally without extra flags.
-ENV PORT=3000
 EXPOSE 3000
 
+# Run vite directly, NOT through pnpm. `pnpm` in the runtime stage makes
+# corepack fetch the pnpm tarball from npm on every container start, and pnpm
+# 11 then verifies the lockfile across the whole workspace before running
+# anything. Together that needs network and many seconds before the server
+# begins listening, which fails a short startup health probe.
+#
 # `vite preview` serves the built output. It is not a hardened production
 # server; for a testnet demo it is the honest, working option, and swapping it
 # for a Node adapter later changes only this line.
-CMD ["sh", "-c", "exec pnpm exec vite preview --host 0.0.0.0 --port ${PORT:-3000}"]
+CMD ["sh", "-c", "exec ./node_modules/.bin/vite preview --host 0.0.0.0 --port ${PORT:-3000}"]
